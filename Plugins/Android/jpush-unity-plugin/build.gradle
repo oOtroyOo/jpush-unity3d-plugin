@@ -38,14 +38,30 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile files('libs/unity-classes.jar')
+    //compile fileTree(include: ['*.jar'], dir: 'libs')
+    provided files('libs/unity-classes.jar')
     compile files('libs/jcore-android-1.2.5.jar')
     compile files('libs/jpush-android-3.1.6.jar')
 }
 
 repositories {
-    flatDir{
+    flatDir {
         dirs 'libs'  //this way we can find the .aar file in libs folder
+    }
+}
+task copyBuild(type: Copy) {
+    from 'build/outputs/aar'
+    into '../aar'
+    include '*.aar'
+}
+afterEvaluate {
+    assemble.doLast {
+        copyBuild.execute()
+    }
+    assembleDebug.doLast {
+        copyBuild.execute()
+    }
+    assembleRelease.doLast {
+        copyBuild.execute()
     }
 }

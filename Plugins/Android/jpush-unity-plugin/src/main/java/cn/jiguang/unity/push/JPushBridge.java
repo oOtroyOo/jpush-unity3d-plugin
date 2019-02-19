@@ -1,6 +1,7 @@
 package cn.jiguang.unity.push;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.text.TextUtils;
 
 import com.unity3d.player.UnityPlayer;
@@ -49,7 +50,7 @@ public class JPushBridge {
         JPushBridge.gameObject = gameObject;
         mContext = UnityPlayer.currentActivity.getApplicationContext();
         JPushInterface.init(mContext);
-
+        saveGameObjectName(mContext, gameObject);
         if (!receiveNotiStrCache.isEmpty()) {
             for (String noti : receiveNotiStrCache) {
                 UnityPlayer.UnitySendMessage(JPushBridge.gameObject, "OnReceiveNotification", noti);
@@ -158,15 +159,15 @@ public class JPushBridge {
     }
 
     public void cleanTags(int sequence) {
-      JPushInterface.cleanTags(mContext, sequence);
+        JPushInterface.cleanTags(mContext, sequence);
     }
 
     public void getAllTags(int sequence) {
         JPushInterface.getAllTags(mContext, sequence);
     }
 
-    public void checkTagBindState(int sequence , String tag) {
-        JPushInterface.checkTagBindState(mContext, sequence ,tag);
+    public void checkTagBindState(int sequence, String tag) {
+        JPushInterface.checkTagBindState(mContext, sequence, tag);
     }
 
     public void setAlias(int sequence, String alias) {
@@ -358,5 +359,19 @@ public class JPushBridge {
             return 0;
         }
         return mContext.getResources().getIdentifier(resourceName, type, mContext.getPackageName());
+    }
+
+    private static void saveGameObjectName(Context context, String gameObject) {
+        //获得SharedPreferences的实例
+        SharedPreferences sp = context.getSharedPreferences("jpush_device_info", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("gameObject", gameObject);
+        editor.apply();
+    }
+
+    public static String loadGameObjectName(Context context) {
+        SharedPreferences sp = context.getSharedPreferences("jpush_device_info", Context.MODE_PRIVATE);
+        gameObject =  sp.getString("gameObject", "");
+        return gameObject;
     }
 }
